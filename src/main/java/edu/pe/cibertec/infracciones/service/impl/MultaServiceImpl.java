@@ -110,4 +110,17 @@ public class MultaServiceImpl implements IMultaService {
                 .toList());
         return dto;
     }
+    @Override
+    public void transferirMulta(Long multaId, Long nuevoInfractorId){
+    Multa multa = multaRepository.findById(multaId)
+            .orElseThrow(()-> new MultaNotFoundException(multaId));
+    Infractor nuevoInfractor = infractorRepository.findById(nuevoInfractorId)
+            .orElseThrow(()-> new InfractorNotFoundException(nuevoInfractorId));
+    if (multa.getEstado()!=EstadoMulta.PENDIENTE){
+        throw new RuntimeException("Solo Transferir Multas Pendientes");
+    }
+    multa.setInfractor(nuevoInfractor);
+    multaRepository.save(multa);
+
+    }
 }
