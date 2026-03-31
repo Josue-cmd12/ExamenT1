@@ -119,6 +119,14 @@ public class MultaServiceImpl implements IMultaService {
     if (multa.getEstado()!=EstadoMulta.PENDIENTE){
         throw new RuntimeException("Solo Transferir Multas Pendientes");
     }
+    if (nuevoInfractor.isBloqueado()){
+        throw new InfractorBloqueadoException(nuevoInfractorId);
+    }
+
+    if (!nuevoInfractor.getVehiculos().contains(multa.getVehiculo())){
+        throw new RuntimeException("no tiene asignado el vehiculo de multa");
+    }
+
     multa.setInfractor(nuevoInfractor);
     multaRepository.save(multa);
 
