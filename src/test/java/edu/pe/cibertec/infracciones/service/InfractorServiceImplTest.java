@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("Pruebas Unitarias-InfractorService")
+@DisplayName("Pruebas InfractorService")
 public class InfractorServiceImplTest {
     @Mock
     private MultaRepository multaRepository;
