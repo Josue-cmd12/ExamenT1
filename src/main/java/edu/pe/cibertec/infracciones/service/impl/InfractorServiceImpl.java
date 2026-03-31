@@ -89,5 +89,17 @@ public class InfractorServiceImpl implements IInfractorService {
 
     @Override
     public void designarVehiculo(Long infractorId, Long vehiculoId) {
+        Infractor infractor = infractorRepository.findById(infractorId)
+                .orElseThrow(() -> new InfractorNotFoundException(infractorId));
+        Vehiculo vehiculo = vehiculoRepository.findById(vehiculoId)
+                .orElseThrow(() -> new VehiculoNotFoundException(vehiculoId));
+        List<Multa> multasPendientes = multaRepository.findByVehiculo_IdAndEstado(vehiculoId, EstadoMulta.PENDIENTE);
+        if (multasPendientes.isEmpty()) {
+            infractor.getVehiculos().remove(vehiculo);
+            infractorRepository.save(infractor);
+        } else {
+            throw new RuntimeException("no se puede designar: el vehiculo tiene multas pendientes");
+        }
     }
 }
+
