@@ -4,9 +4,12 @@ import edu.pe.cibertec.infracciones.dto.InfractorRequestDTO;
 import edu.pe.cibertec.infracciones.dto.InfractorResponseDTO;
 import edu.pe.cibertec.infracciones.exception.InfractorNotFoundException;
 import edu.pe.cibertec.infracciones.exception.VehiculoNotFoundException;
+import edu.pe.cibertec.infracciones.model.EstadoMulta;
 import edu.pe.cibertec.infracciones.model.Infractor;
+import edu.pe.cibertec.infracciones.model.Multa;
 import edu.pe.cibertec.infracciones.model.Vehiculo;
 import edu.pe.cibertec.infracciones.repository.InfractorRepository;
+import edu.pe.cibertec.infracciones.repository.MultaRepository;
 import edu.pe.cibertec.infracciones.repository.VehiculoRepository;
 import edu.pe.cibertec.infracciones.service.IInfractorService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ public class InfractorServiceImpl implements IInfractorService {
 
     private final InfractorRepository infractorRepository;
     private final VehiculoRepository vehiculoRepository;
+    private final MultaRepository multaRepository;
 
     @Override
     public InfractorResponseDTO registrarInfractor(InfractorRequestDTO dto) {
@@ -66,5 +70,24 @@ public class InfractorServiceImpl implements IInfractorService {
         dto.setEmail(infractor.getEmail());
         dto.setBloqueado(infractor.isBloqueado());
         return dto;
+    }
+
+    @Override
+    public Double calcularDeuda(Long infractorId) {
+        List<EstadoMulta> estadosBuscar = List.of(EstadoMulta.PENDIENTE, EstadoMulta.VENCIDA);
+        List<Multa> multas = multaRepository.findByInfractor_IdAndEstadoIn(infractorId, estadosBuscar);
+        double deudaTotal = 0.0;
+        for (Multa multa : multas) {
+            if (multa.getEstado() == EstadoMulta.PENDIENTE) {
+                deudaTotal += multa.getMonto();
+            } else if (multa.getEstado() == EstadoMulta.VENCIDA) {
+                deudaTotal += multa.getMonto() * 1.15;
+            }
+        }
+        return deudaTotal;
+    }
+
+    @Override
+    public void designarVehiculo(Long infractorId, Long vehiculoId) {
     }
 }
